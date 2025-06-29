@@ -32,33 +32,32 @@ def get_model_config(system_info):
     if system_info['is_cloud']:
         # AWS Lambda optimization settings
         return {
-            "num_predict": 2048,
-            "temperature": 0.7,
-            "top_p": 0.95,
+            "num_predict": 1024,  # Reduced for faster generation
+            "temperature": 0.8,   # Slightly increased for better variation
+            "top_p": 0.9,        # Reduced for more focused output
             "cuda": False,
             "num_thread": 2
         }
     else:
         try:
-            # Check if CUDA is actually available
             import torch
             cuda_available = torch.cuda.is_available()
         except ImportError:
             cuda_available = False
 
-        # Optimized settings for GPU if available
+        # Optimized settings for faster generation
         return {
-            "num_predict": 2048,
-            "temperature": 0.7,
-            "top_p": 0.95,
+            "num_predict": 1024,  # Reduced from 2048
+            "temperature": 0.8,   # Balanced for reliability
+            "top_p": 0.9,        # More focused sampling
             "cuda": cuda_available,
-            "num_thread": 8 if cuda_available else 4,  # More threads for GPU
-            "batch_size": 16 if cuda_available else 8,  # Larger batch size for GPU
-            "gpu_layers": 32 if cuda_available else 0,  # Use GPU layers only if available
-            "mmap": True,         # Enable memory mapping for faster loading
-            "seed": 42,           # Consistent results
-            "ctx_size": 2048,     # Context window size
-            "f16_kv": cuda_available  # Use FP16 only with GPU
+            "num_thread": 6 if cuda_available else 4,  # Optimized thread count
+            "batch_size": 8,      # Reduced for faster processing
+            "gpu_layers": 24 if cuda_available else 0,  # Optimized GPU layer count
+            "mmap": True,
+            "seed": 42,
+            "ctx_size": 1024,     # Reduced context window
+            "f16_kv": cuda_available
         }
 
 def check_ollama_status():
